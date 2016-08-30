@@ -5,12 +5,13 @@ $(document).ready(function() {
         dialogUNIQUENAME();
     });
     $.UNIQUENAME = $('<div></div>').dialog({
+    	title: 'DIALOG_TITLE',
         width: 300, modal: true, autoOpen: false, 
         overlay: {backgroundColor: '#000', opacity: 0.5}
     });
-    var dialogContent = "<select id='groupFilterUNIQUENAME' style='width: 100%;'>GROUP_OPTIONS</select>";
-    dialogContent += "<a id='linkAllUNIQUENAME' href='javascript:addGroupUNIQUENAME();'>Выбрать всех сотрудников</a>";
-    dialogContent += "<input id='nameFilterUNIQUENAME' style='width: 100%;'><div id='dialogContentUNIQUENAME' style='height: 300px; overflow-y: scroll;'></div>";
+    var dialogContent = "<select id='groupFilterUNIQUENAME' style='width: 100%; margin-bottom:4px;'>GROUP_OPTIONS</select>";
+    dialogContent += "<input type='button' id='buttonAllUNIQUENAME' onclick='addGroupUNIQUENAME();' value='SELECT_ALL_LABEL' style='margin-bottom:4px;'/>";
+    dialogContent += "<input id='nameFilterUNIQUENAME' style='width: 100%;  margin-bottom:4px;'><div id='dialogContentUNIQUENAME' style='height: 300px; overflow-y: scroll; margin-bottom:4px;'></div>";
     $.UNIQUENAME.html(dialogContent);
     $("#nameFilterUNIQUENAME").keyup(function() {
         dialogUNIQUENAME();
@@ -35,7 +36,7 @@ function dialogUNIQUENAME() {
             		divTitle = item.exclusion;
                 } else if (vUNIQUENAME[item.code] != undefined) {
             		divClass = "actorSelected";
-            		divTitle = "Сотрудник уже выбран вами";
+            		divTitle = "ACTOR_SELECTED_INFO";
                 } else {
                 	addEnabled = true;
             		divTitle = item.title;
@@ -63,15 +64,16 @@ function addGroupUNIQUENAME() {
 function addUNIQUENAME(code, name) {
     var rowIndex = getSizeUNIQUENAME();
 	console.log("Adding actor " + rowIndex + " (" + code + ")");
-    var e = "<div row='" + rowIndex + "'>";
-    e += "<input type='hidden' name='VARIABLENAME["+rowIndex+"]' value='"+code+"' /> " + name;
-    e += " <a href='javascript:{}' onclick='removeUNIQUENAME(this);'>[ X ]</a>";
+    var e = "<div row='" + rowIndex + "'  style='margin-bottom:4px;'>";
+    e += "<input type='hidden' name='VARIABLENAME["+rowIndex+"]' value='"+code+"' /> ";
+    e += "<input value='"+name+"' readonly='true' /> " ;
+    e += " <input type='button'  onclick='removeUNIQUENAME(this);' style='width: 30px;' value=' - '/>";
     e += "</div>";
-    $('#UNIQUENAME').append(e);
+    $('#buttonAddUNIQUENAME').before(e);
     vUNIQUENAME[code] = name;
     var actorDiv = $("#divUNIQUENAME" + code);
     actorDiv.html(name);
-    actorDiv.attr("title", "Сотрудник уже выбран вами");
+    actorDiv.attr("title", "ACTOR_SELECTED_INFO");
     actorDiv.addClass("actorSelected");
     //$.UNIQUENAME.dialog("close");
     updateSizeUNIQUENAME(1);

@@ -13,6 +13,11 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import freemarker.template.TemplateModelException;
 import ru.runa.wfe.commons.ClassLoaderUtil;
 import ru.runa.wfe.commons.TypeConversionUtil;
 import ru.runa.wfe.commons.ftl.AjaxJsonFormComponent;
@@ -29,24 +34,14 @@ import ru.runa.wfe.var.IVariableProvider;
 import ru.runa.wfe.var.MapDelegableVariableProvider;
 import ru.runa.wfe.var.dto.WfVariable;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import freemarker.template.TemplateModelException;
-
 /**
- * В 4-й версии рекомендуется организовывать списки пользователей, и тогда можно
- * получить доступ ко всем полям. При сохранении в список строк будут
- * сохраняться (уникальные) логины. В сценарии с исключениями работоспособной
- * будет связывание с картой, у которой ключи либо логины пользователей, либо
- * пользователи.
+ * В 4-й версии рекомендуется организовывать списки пользователей, и тогда можно получить доступ ко всем полям. При сохранении в список строк будут
+ * сохраняться (уникальные) логины. В сценарии с исключениями работоспособной будет связывание с картой, у которой ключи либо логины пользователей,
+ * либо пользователи.
  *
- * При наличии в процессе переменной VARIABLE_groups_included список групп
- * берётся только из неё. При наличии в процессе переменной
- * VARIABLE_groups_excluded указанный список групп исключается из возможного при
- * выборе. Обе переменные могут быть типа Строка, Группа, Список<Строка>,
- * Список<Группа>.
+ * При наличии в процессе переменной VARIABLE_groups_included список групп берётся только из неё. При наличии в процессе переменной
+ * VARIABLE_groups_excluded указанный список групп исключается из возможного при выборе. Обе переменные могут быть типа Строка, Группа, Список
+ * <Строка>, Список<Группа>.
  *
  * @author Dofs
  */
@@ -66,6 +61,9 @@ public class SelectEmployeesFromGroups extends AjaxJsonFormComponent {
         Map<String, String> substitutions = new HashMap<String, String>();
         substitutions.put("VARIABLENAME", variableName);
         substitutions.put("UNIQUENAME", scriptingVariableName);
+        substitutions.put("DIALOG_TITLE", webHelper.getMessage("title.select_employees"));
+        substitutions.put("SELECT_ALL_LABEL", webHelper.getMessage("label.select_all_employees"));
+        substitutions.put("ACTOR_SELECTED_INFO", webHelper.getMessage("message.actor_selected"));
         StringBuffer groupsOptions = new StringBuffer();
         List<Group> groups = getGroups(variableName + "_groups_included");
         if (groups == null) {
@@ -90,31 +88,33 @@ public class SelectEmployeesFromGroups extends AjaxJsonFormComponent {
             list = Lists.newArrayList();
         }
 
-        StringBuffer html = new StringBuffer();
+        StringBuilder html = new StringBuilder();
         html.append(exportScript(substitutions, false));
         html.append("<style>div.actorSelected {padding-left: 17px; background: url('/wfe/images/info.png') no-repeat top left;}</style>");
-        html.append("<div class=\"selectEmployees\" id=\"").append(scriptingVariableName).append("\">");
-        html.append("<input type=\"hidden\" name=\"").append(variableName).append(".size\" value=\"").append(list.size()).append("\" />");
+        html.append("<div class='selectEmployees' id='").append(scriptingVariableName).append("'>");
+        html.append("<input type='hidden' name='").append(variableName).append(".size' value='").append(list.size()).append("' />");
         for (int row = 0; row < list.size(); row++) {
-            html.append("<div row=\"").append(row).append("\">");
+            html.append("<div row='").append(row).append("' style='margin-bottom:4px;'>");
             Actor actor = TypeConversionUtil.convertToExecutor(list.get(row), new DelegateExecutorLoader(user));
             String actorName = actor != null ? actor.getName() : "";
             html.append("<input type='hidden' name='" + variableName + "[" + row + "]' value='" + actorName + "' /> ");
+            html.append("<input value='");
             if (actor != null) {
                 html.append(byLogin ? actor.getName() : actor.getFullName());
             } else {
-                html.append("NULL");
+                html.append("");
             }
-            html.append(" <a href=\"javascript:{}\" onclick=\"remove").append(scriptingVariableName).append("(this);\"");
+            html.append("' readonly='true' />");
+            html.append(" <input type='button'  onclick='remove").append(scriptingVariableName).append("(this);'");
             String title = getTitle(actor);
             if (!Strings.isNullOrEmpty(title)) {
-                html.append(" title=\"").append(title).append("\"");
+                html.append(" title='").append(title).append("'");
             }
-            html.append(">[ X ]</a>");
+            html.append(" style='width: 30px;' value=' - '/>");
             html.append("</div>");
         }
-        html.append("<div class=\"selectEmployeesAddButton\">");
-        html.append("<a href=\"javascript:{}\" id=\"buttonAdd").append(scriptingVariableName).append("\">[ + ]</a>");
+        html.append("<div class='selectEmployeesAddButton'>");
+        html.append("<input type='button' id='buttonAdd").append(scriptingVariableName).append("' style='width: 30px;' value=' + '/>");
         html.append("</div>");
         html.append("</div>");
         return html.toString();
