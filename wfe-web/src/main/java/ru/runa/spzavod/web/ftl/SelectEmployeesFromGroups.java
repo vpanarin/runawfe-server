@@ -183,7 +183,8 @@ public class SelectEmployeesFromGroups extends AjaxJsonFormComponent {
         if (Strings.isNullOrEmpty(exclusionsVariableName)) {
             return Maps.newHashMap();
         }
-        Long targetProcessId = getParameterAs(long.class, 2);
+        String targetProcessIdVariableName = getParameterAs(String.class, 2);
+        Long targetProcessId = variableProvider.getValue(long.class, targetProcessIdVariableName);
         Map<Object, String> exclusionsMap;
         if (targetProcessId == 0) {
             exclusionsMap = variableProvider.getValue(Map.class, exclusionsVariableName);

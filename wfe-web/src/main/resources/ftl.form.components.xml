@@ -24,4 +24,5 @@
 	<component name="DisplayListUserVariables" class="ru.runa.wf.web.ftl.component.DisplayUserTypeList" />
 	<component name="MultipleSelectFromListUserVariables" class="ru.runa.wf.web.ftl.component.MultipleSelectFromUserTypeList" />
     <component name="EditUserTypeList" class="ru.runa.wf.web.ftl.component.EditUserTypeList" />
+    <component name="SelectEmployeesFromGroups" class="ru.runa.spzavod.web.ftl.SelectEmployeesFromGroups" />
 </configuration>
