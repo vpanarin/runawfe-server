@@ -381,8 +381,8 @@ public class ViewUtil {
             return b.toString();
         }
         if (variableFormat instanceof ListFormat) {
-            String scriptingVariableName = "var_" + variable.getDefinition().getScriptingNameWithoutDots();
             VariableFormat componentFormat = FormatCommons.createComponent(variable, 0);
+            String scriptingVariableName = "var_" + variable.getDefinition().getScriptingNameWithoutDots();
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("VARIABLE", variableName);
             substitutions.put("UNIQUENAME", scriptingVariableName);
