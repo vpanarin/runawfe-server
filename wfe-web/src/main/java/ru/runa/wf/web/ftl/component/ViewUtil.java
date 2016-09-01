@@ -382,6 +382,10 @@ public class ViewUtil {
         }
         if (variableFormat instanceof ListFormat) {
             VariableFormat componentFormat = FormatCommons.createComponent(variable, 0);
+            if (componentFormat instanceof ActorFormat) {
+                final SelectEmployeeFromGroupRenderer renderer = new SelectEmployeeFromGroupRenderer(user, webHelper);
+                return renderer.getComponentInput(variable);
+            }
             String scriptingVariableName = "var_" + variable.getDefinition().getScriptingNameWithoutDots();
             Map<String, String> substitutions = new HashMap<String, String>();
             substitutions.put("VARIABLE", variableName);

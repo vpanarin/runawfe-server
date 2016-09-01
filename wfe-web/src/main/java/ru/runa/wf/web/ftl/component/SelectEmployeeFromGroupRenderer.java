@@ -22,7 +22,6 @@ import ru.runa.wfe.presentation.BatchPresentationFactory;
 import ru.runa.wfe.service.client.DelegateExecutorLoader;
 import ru.runa.wfe.service.delegate.Delegates;
 import ru.runa.wfe.user.Actor;
-import ru.runa.wfe.user.Executor;
 import ru.runa.wfe.user.Group;
 import ru.runa.wfe.user.User;
 import ru.runa.wfe.var.IVariableProvider;
@@ -34,19 +33,17 @@ public class SelectEmployeeFromGroupRenderer {
 
     private final Log log = LogFactory.getLog(getClass());
     private final User user;
-    private final IVariableProvider variableProvider;
     private final WebHelper webHelper;
 
-    public SelectEmployeeFromGroupRenderer(User user, IVariableProvider variableProvider, WebHelper webHelper) {
+    public SelectEmployeeFromGroupRenderer(User user, WebHelper webHelper) {
         super();
         this.user = user;
-        this.variableProvider = variableProvider;
         this.webHelper = webHelper;
     }
 
-    public String createComponent(final WfVariable variable) {
+    public String getComponentInput(final WfVariable variable) {
         final String variableName = variable.getDefinition().getName();
-        final String scriptingVariableName = variable.getDefinition().getScriptingName();
+        final String scriptingVariableName = "var_" + variable.getDefinition().getScriptingNameWithoutDots();
         Map<String, String> substitutions = new HashMap<String, String>();
         substitutions.put("VARIABLENAME", variableName);
         substitutions.put("UNIQUENAME", scriptingVariableName);
@@ -55,25 +52,15 @@ public class SelectEmployeeFromGroupRenderer {
         substitutions.put("ACTOR_SELECTED_INFO", webHelper.getMessage("message.actor_selected"));
         substitutions.put("JSON_URL", "/wfe/ajaxcmd?command=ajaxActorsListFromGroup");
         StringBuffer groupsOptions = new StringBuffer();
-        List<Group> groups = getGroups(variableName + "_groups_included");
-        if (groups == null) {
-            groups = (List<Group>) Delegates.getExecutorService().getExecutors(user, BatchPresentationFactory.GROUPS.createNonPaged());
-        }
+        List<Group> groups = (List<Group>) Delegates.getExecutorService().getExecutors(user, BatchPresentationFactory.GROUPS.createNonPaged());
         Collections.sort(groups);
-        List<Group> excludedGroups = getGroups(variableName + "_groups_excluded");
-        if (excludedGroups != null) {
-            for (Group excludedGroup : excludedGroups) {
-                groups.remove(excludedGroup);
-            }
-        }
         for (Group group : groups) {
             if (group.getClass() == Group.class) {
                 groupsOptions.append("<option>").append(group.getName()).append("</option>");
             }
         }
         substitutions.put("GROUP_OPTIONS", groupsOptions.toString());
-
-        List<String> list = variableProvider.getValue(List.class, variableName);
+        List<String> list = TypeConversionUtil.convertTo(List.class, variable.getValue());
         if (list == null) {
             list = Lists.newArrayList();
         }
@@ -111,23 +98,6 @@ public class SelectEmployeeFromGroupRenderer {
         html.append("</div>");
         return html.toString();
 
-    }
-
-    private List<Group> getGroups(String variableName) {
-        List<?> list = variableProvider.getValue(List.class, variableName);
-        if (list != null) {
-            List<Group> result = Lists.newArrayList();
-            for (Object object : list) {
-                Executor executor = TypeConversionUtil.convertToExecutor(object, new DelegateExecutorLoader(user));
-                if (executor instanceof Group) {
-                    result.add((Group) executor);
-                } else {
-                    log.error("Variable '" + variableName + "' contains not a group " + executor);
-                }
-            }
-            return result;
-        }
-        return null;
     }
 
     private String getTitle(Actor actor) {

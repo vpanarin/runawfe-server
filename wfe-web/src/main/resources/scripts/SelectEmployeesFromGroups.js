@@ -1,4 +1,4 @@
-var vUNIQUENAME = new Object();
+var UNIQUENAME = new Object();
 
 $(document).ready(function() {
     $('#buttonAddUNIQUENAME').click(function() {
@@ -34,7 +34,7 @@ function dialogUNIQUENAME() {
             	if (item.exclusion.length != 0) {
             		divClass = "actorSelected";
             		divTitle = item.exclusion;
-                } else if (vUNIQUENAME[item.code] != undefined) {
+                } else if (UNIQUENAME[item.code] != undefined) {
             		divClass = "actorSelected";
             		divTitle = "ACTOR_SELECTED_INFO";
                 } else {
@@ -70,7 +70,7 @@ function addUNIQUENAME(code, name) {
     e += " <input type='button'  onclick='removeUNIQUENAME(this);' style='width: 30px;' value=' - '/>";
     e += "</div>";
     $('#buttonAddUNIQUENAME').before(e);
-    vUNIQUENAME[code] = name;
+    UNIQUENAME[code] = name;
     var actorDiv = $("#divUNIQUENAME" + code);
     actorDiv.html(name);
     actorDiv.attr("title", "ACTOR_SELECTED_INFO");
@@ -86,7 +86,7 @@ function removeUNIQUENAME(button) {
 	var size = getSizeUNIQUENAME();
 	var code = div.find("input").val();
 	console.log("Removing actor " + rowIndex + " (" + code + ")");
-    vUNIQUENAME[code] = undefined;
+    UNIQUENAME[code] = undefined;
 	div.remove();
 	for (var i = rowIndex; i < size - 1; i++) {
 		updateIndexesUNIQUENAME(i + 1, i);
